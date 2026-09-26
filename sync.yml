@@ -1,0 +1,36 @@
+name: Sincronizar catálogo UGREEN
+
+on:
+  schedule:
+    # Corre todos los días a las 07:00 hora de México (13:00 UTC)
+    - cron: "0 13 * * *"
+  workflow_dispatch: {}   # permite correrlo manualmente desde GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generar catálogo
+        env:
+          SYSCOM_CLIENT_ID: ${{ secrets.SYSCOM_CLIENT_ID }}
+          SYSCOM_CLIENT_SECRET: ${{ secrets.SYSCOM_CLIENT_SECRET }}
+        run: python sync_catalog.py
+
+      - name: Publicar cambios
+        run: |
+          git config user.name "catalogo-bot"
+          git config user.email "actions@github.com"
+          git add index.html
+          git diff --quiet && git diff --staged --quiet || git commit -m "Actualiza catálogo $(date +'%Y-%m-%d %H:%M')"
+          git push
