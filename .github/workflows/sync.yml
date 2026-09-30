@@ -3,7 +3,7 @@ name: Sincronizar catálogo UGREEN
 on:
   schedule:
     # Corre todos los días a las 07:00 hora de México (13:00 UTC)
-    - cron: "0 13 * * *"
+    - cron: "7 13 * * *"
   workflow_dispatch: {}   # permite correrlo manualmente desde GitHub
 
 permissions:
